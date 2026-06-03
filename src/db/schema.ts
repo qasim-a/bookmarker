@@ -39,7 +39,8 @@ export const meetings = pgTable("meetings", {
   clubId: uuid("club_id").references(() => clubs.id).notNull(),
   bookId: uuid("book_id").references(() => books.id).notNull(),
   meetingDate: timestamp("meeting_date").notNull(),
-  status: text("status").notNull().default("upcoming"), // upcoming | voting | discussing | finished
+  status: text("status").notNull().default("upcoming"),
+  currentQuestionIndex: integer("current_question_index").default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -89,4 +90,10 @@ export const archivedMeetings = pgTable("archived_meetings", {
   archivedBookId: uuid("archived_book_id").references(() => archivedBooks.id).notNull(),
   meetingDate: timestamp("meeting_date").notNull(),
   assignedChapters: text("assigned_chapters").notNull(), // JSON string of chapter titles
+});
+
+export const questionVotes = pgTable("question_votes", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  questionId: uuid("question_id").references(() => questions.id).notNull(),
+  memberId: uuid("member_id").references(() => members.id).notNull(),
 });
