@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:reset": "psql \"$DATABASE_URL\" -c \"DELETE FROM question_votes; DELETE FROM questions; DELETE FROM member_attendance; DELETE FROM meeting_chapters; DELETE FROM meetings; DELETE FROM members; DELETE FROM chapters; DELETE FROM books; DELETE FROM archived_meetings; DELETE FROM archived_books; DELETE FROM clubs; DELETE FROM leaders;\""
-
+    "db:reset": "psql \"$DATABASE_URL\" -c \"DELETE FROM question_votes; DELETE FROM questions; DELETE FROM member_attendance; DELETE FROM meeting_chapters; DELETE FROM meetings; DELETE FROM members; DELETE FROM chapters; DELETE FROM books; DELETE FROM archived_books; DELETE FROM clubs; DELETE FROM leaders;\""
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.2",

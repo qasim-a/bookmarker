@@ -11,8 +11,8 @@ export const clubs = pgTable("clubs", {
   id: uuid("id").defaultRandom().primaryKey(),
   leaderId: uuid("leader_id").references(() => leaders.id).notNull(),
   name: text("name").notNull(),
-  memberLink: text("member_link").notNull().unique(), // random slug, persistent
-  memberPassword: text("member_password"), // null means no password
+  memberLink: text("member_link").notNull().unique(),
+  memberPassword: text("member_password"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -31,7 +31,7 @@ export const chapters = pgTable("chapters", {
   bookId: uuid("book_id").references(() => books.id).notNull(),
   title: text("title").notNull(),
   order: integer("order").notNull(),
-  content: text("content"), // extracted text for AI use
+  content: text("content"),
 });
 
 export const meetings = pgTable("meetings", {
@@ -41,6 +41,8 @@ export const meetings = pgTable("meetings", {
   meetingDate: timestamp("meeting_date").notNull(),
   status: text("status").notNull().default("upcoming"),
   currentQuestionIndex: integer("current_question_index").default(0),
+  // Whether the leader had AI question generation enabled when starting
+  aiEnabled: boolean("ai_enabled").default(true),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -70,11 +72,17 @@ export const questions = pgTable("questions", {
   meetingId: uuid("meeting_id").references(() => meetings.id).notNull(),
   text: text("text").notNull(),
   source: text("source").notNull(), // "ai" | "member"
-  memberId: uuid("member_id").references(() => members.id), // null if ai
+  memberId: uuid("member_id").references(() => members.id),
   votes: integer("votes").default(0),
-  isSelected: boolean("is_selected").default(false), // top 5 chosen for discussion
-  order: integer("order"), // order during discussion phase
+  isSelected: boolean("is_selected").default(false),
+  order: integer("order"),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const questionVotes = pgTable("question_votes", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  questionId: uuid("question_id").references(() => questions.id).notNull(),
+  memberId: uuid("member_id").references(() => members.id).notNull(),
 });
 
 export const archivedBooks = pgTable("archived_books", {
@@ -83,17 +91,4 @@ export const archivedBooks = pgTable("archived_books", {
   title: text("title").notNull(),
   author: text("author"),
   archivedAt: timestamp("archived_at").defaultNow(),
-});
-
-export const archivedMeetings = pgTable("archived_meetings", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  archivedBookId: uuid("archived_book_id").references(() => archivedBooks.id).notNull(),
-  meetingDate: timestamp("meeting_date").notNull(),
-  assignedChapters: text("assigned_chapters").notNull(), // JSON string of chapter titles
-});
-
-export const questionVotes = pgTable("question_votes", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  questionId: uuid("question_id").references(() => questions.id).notNull(),
-  memberId: uuid("member_id").references(() => members.id).notNull(),
 });

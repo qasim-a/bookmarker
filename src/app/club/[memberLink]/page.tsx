@@ -27,29 +27,61 @@ export default async function ClubPage({
 
   const book = activeBook[0] ?? null;
 
-  const activeMeeting = book
+  // Active meeting: started/voting/discussing — members get routed into it
+  const activeMeetingResult = book
     ? await db
         .select()
         .from(meetings)
         .where(
           and(
             eq(meetings.clubId, club[0].id),
-            inArray(meetings.status, ["upcoming", "voting", "discussing"])
+            inArray(meetings.status, ["started", "voting", "discussing"])
           )
         )
         .limit(1)
     : null;
 
-  const meeting = activeMeeting?.[0] ?? null;
+  const activeMeeting = activeMeetingResult?.[0] ?? null;
 
-  const assignedChapters = meeting
+  // All upcoming meetings for the home view
+  const upcomingMeetings = book
+    ? await db
+        .select()
+        .from(meetings)
+        .where(and(eq(meetings.clubId, club[0].id), eq(meetings.status, "upcoming")))
+        .orderBy(meetings.meetingDate)
+    : [];
+
+  // Chapters for the active meeting (AI summary on started phase)
+  const assignedChapters = activeMeeting
     ? await db
         .select({ id: chapters.id, title: chapters.title, order: chapters.order })
         .from(meetingChapters)
         .innerJoin(chapters, eq(meetingChapters.chapterId, chapters.id))
-        .where(eq(meetingChapters.meetingId, meeting.id))
+        .where(eq(meetingChapters.meetingId, activeMeeting.id))
         .orderBy(chapters.order)
     : [];
+
+  // Chapters for each upcoming meeting (shown on home view)
+  const upcomingChapters =
+    upcomingMeetings.length > 0
+      ? await db
+          .select({
+            meetingId: meetingChapters.meetingId,
+            id: chapters.id,
+            title: chapters.title,
+            order: chapters.order,
+          })
+          .from(meetingChapters)
+          .innerJoin(chapters, eq(meetingChapters.chapterId, chapters.id))
+          .where(
+            inArray(
+              meetingChapters.meetingId,
+              upcomingMeetings.map((m) => m.id)
+            )
+          )
+          .orderBy(chapters.order)
+      : [];
 
   const clubMembers = await db
     .select()
@@ -57,18 +89,42 @@ export default async function ClubPage({
     .where(eq(members.clubId, club[0].id))
     .orderBy(members.name);
 
-  const attendance = meeting
+  // Attendance for the active meeting (used in started phase)
+  const attendance = activeMeeting
     ? await db
         .select()
         .from(memberAttendance)
-        .where(eq(memberAttendance.meetingId, meeting.id))
+        .where(eq(memberAttendance.meetingId, activeMeeting.id))
     : [];
+
+  // Attendance for all upcoming meetings (shown on home view per-meeting)
+  const upcomingAttendanceRaw =
+    upcomingMeetings.length > 0
+      ? await db
+          .select()
+          .from(memberAttendance)
+          .where(
+            inArray(
+              memberAttendance.meetingId,
+              upcomingMeetings.map((m) => m.id)
+            )
+          )
+      : [];
+
+  // Attach meetingId to each attendance record for the home view
+  const upcomingAttendance = upcomingAttendanceRaw.map((a) => ({
+    ...a,
+    meetingId: a.meetingId,
+  }));
 
   return (
     <MemberView
       club={club[0]}
       book={book}
-      meeting={meeting}
+      activeMeeting={activeMeeting}
+      upcomingMeetings={upcomingMeetings}
+      upcomingChapters={upcomingChapters}
+      upcomingAttendance={upcomingAttendance}
       assignedChapters={assignedChapters}
       members={clubMembers}
       attendance={attendance}

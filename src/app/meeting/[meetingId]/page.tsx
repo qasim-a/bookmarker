@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { meetings, questions, meetingChapters, chapters, books, clubs } from "@/db/schema";
+import { meetings, meetingChapters, chapters, books, clubs } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import MeetingLeaderView from "../../../components/MeetingLeaderView";
@@ -45,18 +45,11 @@ export default async function MeetingPage({
     .where(eq(meetingChapters.meetingId, meetingId))
     .orderBy(chapters.order);
 
-  const meetingQuestions = await db
-    .select()
-    .from(questions)
-    .where(eq(questions.meetingId, meetingId))
-    .orderBy(questions.votes);
-
   return (
     <MeetingLeaderView
       meeting={meeting[0]}
       book={book[0]}
       assignedChapters={assignedChapters}
-      initialQuestions={meetingQuestions}
       clubMemberLink={club[0].memberLink}
       appUrl={process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}
     />
