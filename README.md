@@ -6,9 +6,9 @@ A meeting companion for in-person book clubs. The leader manages everything thro
 
 ---
 
-<img src="assets/dashboard.png" width="80%" />
+<img src="assets/dashboard.png" width="40%" />
 
-<img src="assets/meeting.png" width="80%" />
+<img src="assets/meeting.png" width="40%" />
 
 <img src="assets/member.png" width="80%" />
 
