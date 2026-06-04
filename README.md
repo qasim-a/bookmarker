@@ -66,8 +66,6 @@ Member pages transition between phases automatically via 5-second polling — no
 
 **AI woven throughout.** Groq's `llama-3.3-70b-versatile` powers four distinct features: chapter summaries, discussion question generation, per-question insights during discussion, and next book suggestions. All prompts return structured output (JSON arrays or plain prose) with explicit format instructions to avoid parsing failures. If question generation returns anything other than exactly 5 items, the leader is shown an error and asked to retry rather than silently proceeding with a broken state.
 
-**Hard server-side cutoffs.** Member question submissions are rejected at the API level once a meeting moves past the `started` phase — not just hidden in the UI. The server checks meeting status on every submission request, so a member sitting on a stale page can't sneak a question in after voting has started.
-
 ---
 
 ## Stack
