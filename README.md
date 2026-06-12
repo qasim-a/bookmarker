@@ -2,7 +2,7 @@
 
 A meeting companion for in-person book clubs. The leader manages everything through a dashboard; members join via a persistent link with no account required.
 
-**[Live Demo →](https://bookmarker-qasim.vercel.app)**
+**[Live Demo →](https://bookmarker-gules.vercel.app)**
 
 ---
 
